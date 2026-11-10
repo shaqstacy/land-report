@@ -32,6 +32,14 @@ td a{color:var(--accent)}
 .status-Pending,.status-Sold,.status-Removed{opacity:.55}
 .notes{font-size:.85rem;color:var(--muted);max-width:340px}
 footer{color:var(--muted);font-size:.82rem;margin-top:20px}
+h2{font-size:1.15rem;margin:0 0 10px}
+.top20{list-style:none;margin:0 0 28px;padding:0;background:var(--card);border:1px solid var(--line);border-radius:10px;columns:2 420px;column-gap:0}
+.top20 li{display:grid;grid-template-columns:2.2em 2.6em 1fr;gap:8px;align-items:baseline;padding:8px 14px;border-bottom:1px solid var(--line);break-inside:avoid}
+.top20 .rk{color:var(--muted);font-variant-numeric:tabular-nums;text-align:right}
+.top20 .sc{font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums}
+.top20 a{color:var(--ink);font-weight:600;text-decoration:none}
+.top20 a:hover{text-decoration:underline}
+.top20 .meta{display:block;color:var(--muted);font-size:.82rem}
 </style>
 </head>
 <body>
@@ -40,6 +48,11 @@ footer{color:var(--muted);font-size:.82rem;margin-top:20px}
 <p class="sub" id="sub">20+ acres · ≤ $500k · scored out of 100 (Price 35 · Usable land 25 · Location 20 · Camp/cabin 20)</p>
 
 <div class="top5" id="top5"></div>
+
+<h2>Top 20 listings</h2>
+<ol class="top20" id="top20"></ol>
+
+<h2>All listings</h2>
 
 <div class="controls">
   <input id="q" placeholder="Search road, town, county, notes…">
@@ -82,6 +95,10 @@ fetch('listings.json').then(r=>r.json()).then(d=>{
   $('#top5').innerHTML=d.filter(r=>r.status==='Active').sort((a,b)=>a.rank-b.rank).slice(0,5).map(r=>`<div class="card">
     <div class="score">${r.score}</div><a href="${esc(r.url)}" target="_blank" rel="noopener">${esc(r.property)}</a>
     <div class="meta">${esc(r.county)}, ${esc(r.state)} · ${money(r.price)} · ${money(r.price_per_acre)}/ac · ~${r.drive_min} min</div></div>`).join('');
+  $('#top20').innerHTML=d.filter(r=>r.status==='Active').sort((a,b)=>a.rank-b.rank).slice(0,20).map(r=>`<li>
+    <span class="rk">${r.rank}.</span><span class="sc">${r.score}</span>
+    <span><a href="${esc(r.url)}" target="_blank" rel="noopener">${esc(r.property)}</a>
+    <span class="meta">${esc(r.county)}, ${esc(r.state)} · ${money(r.price)} · ${money(r.price_per_acre)}/ac</span></span></li>`).join('');
   render();
 });
 document.querySelectorAll('th').forEach(th=>th.onclick=()=>{const k=th.dataset.k;asc=sortK===k?!asc:!['score','acres'].includes(k);sortK=k;render()});
