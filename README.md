@@ -29,7 +29,7 @@ Red flags noted on listings: no mineral rights, strip-mined land, easements, no 
 | 4 | 77 | [91.3 ac – Perry Ridge Rd, Dunlow (Wayne WV)](https://www.landwatch.com/wayne-county-west-virginia-timberland-property-for-sale/pid/427327668) | $79,900 | $875 |
 | 5 | 77 | [95.2 ac – Hog Run Rd / CR 181, Ironton (Lawrence OH)](https://www.landwatch.com/lawrence-county-ohio-timberland-property-for-sale/pid/428066146) | $225,000 | $2,362 |
 
-The full list is in [`data/listings.json`](data/listings.json) and [`data/listings.csv`](data/listings.csv), which opens in Excel or Google Sheets.
+The full list is in [`listings.json`](listings.json) and [`listings.csv`](listings.csv), which opens in Excel or Google Sheets.
 
 ## Upcoming auctions
 - **120 ac, Camp Creek Rd, Julian (Boone WV)**: absolute online auction, closes Nov 17, 6 PM. [Joe R. Pyle](https://www.joerpyleauctions.com/auctions/detail/bw172092)

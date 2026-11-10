@@ -57,7 +57,7 @@ footer{color:var(--muted);font-size:.82rem;margin-top:20px}
 <tbody id="rows"></tbody>
 </table></div>
 
-<footer>Data: <a href="data/listings.json">listings.json</a> · <a href="data/listings.csv">listings.csv</a>. Gathered from public listings on LandWatch, LandSearch, broker and auction sites. Prices and status change often, so confirm everything with the listing agent before acting.</footer>
+<footer>Data: <a href="listings.json">listings.json</a> · <a href="listings.csv">listings.csv</a>. Gathered from public listings on LandWatch, LandSearch, broker and auction sites. Prices and status change often, so confirm everything with the listing agent before acting.</footer>
 </main>
 <script>
 const $=s=>document.querySelector(s), money=n=>n==null?'—':'$'+Math.round(n).toLocaleString();
@@ -76,7 +76,7 @@ function render(){
     <td class="notes">${esc(r.notes)}${r.red_flags?`<div class="flag">⚠ ${esc(r.red_flags)}</div>`:''}</td></tr>`).join('');
 }
 let latest='';
-fetch('data/listings.json').then(r=>r.json()).then(d=>{
+fetch('listings.json').then(r=>r.json()).then(d=>{
   data=d; latest=d.map(r=>r.first_seen).sort().pop();
   $('#sub').textContent+=` · updated ${latest}`;
   $('#top5').innerHTML=d.filter(r=>r.status==='Active').sort((a,b)=>a.rank-b.rank).slice(0,5).map(r=>`<div class="card">
