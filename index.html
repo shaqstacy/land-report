@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Huntington Hunting Land</title>
+<style>
+:root{--bg:#f7f6f2;--card:#fff;--ink:#1d2320;--muted:#5f6b64;--line:#dfe3df;--accent:#2f6b45;--accent-soft:#e3efe6;--warn:#9a5b00;--warn-soft:#fbefd9}
+@media (prefers-color-scheme:dark){:root{--bg:#141816;--card:#1c211e;--ink:#e6ebe7;--muted:#9aa69f;--line:#2e3631;--accent:#7cc495;--accent-soft:#1f3327;--warn:#e7b25a;--warn-soft:#3a2c14}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+main{max-width:1180px;margin:0 auto;padding:24px 16px 48px}
+h1{font-size:1.6rem;margin:0 0 4px}
+.sub{color:var(--muted);margin:0 0 20px}
+.top5{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px;margin-bottom:24px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px}
+.card .score{font-size:1.5rem;font-weight:700;color:var(--accent)}
+.card a{color:var(--ink);font-weight:600;text-decoration:none}
+.card a:hover{text-decoration:underline}
+.card .meta{color:var(--muted);font-size:.85rem}
+.controls{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+input,select{font:inherit;padding:7px 10px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink)}
+input{flex:1;min-width:180px}
+.wrap{overflow-x:auto;background:var(--card);border:1px solid var(--line);border-radius:10px}
+table{border-collapse:collapse;width:100%;min-width:900px}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{position:sticky;top:0;background:var(--card);cursor:pointer;user-select:none;font-size:.82rem;color:var(--muted);white-space:nowrap}
+td.num{text-align:right;white-space:nowrap}
+td a{color:var(--accent)}
+.pill{display:inline-block;padding:1px 8px;border-radius:99px;font-size:.78rem;background:var(--accent-soft);color:var(--accent)}
+.flag{color:var(--warn);font-size:.82rem}
+.status-Pending,.status-Sold,.status-Removed{opacity:.55}
+.notes{font-size:.85rem;color:var(--muted);max-width:340px}
+footer{color:var(--muted);font-size:.82rem;margin-top:20px}
+</style>
+</head>
+<body>
+<main>
+<h1>Hunting land within ~1 hr of Huntington, WV</h1>
+<p class="sub" id="sub">20+ acres · ≤ $500k · scored out of 100 (Price 35 · Usable land 25 · Location 20 · Camp/cabin 20)</p>
+
+<div class="top5" id="top5"></div>
+
+<div class="controls">
+  <input id="q" placeholder="Search road, town, county, notes…">
+  <select id="state"><option value="">All states</option><option>WV</option><option>KY</option><option>OH</option></select>
+  <select id="status"><option value="Active">Active only</option><option value="">All statuses</option></select>
+  <select id="cabin"><option value="">Any</option><option value="Yes">Has cabin/house</option></select>
+</div>
+
+<div class="wrap"><table>
+<thead><tr>
+<th data-k="rank">#</th><th data-k="score">Score</th><th data-k="property">Property</th><th data-k="county">County</th>
+<th data-k="acres">Acres</th><th data-k="price">Price</th><th data-k="price_per_acre">$/ac</th><th data-k="drive_min">Drive</th>
+<th data-k="has_structure">Cabin</th><th data-k="notes">Notes / flags</th>
+</tr></thead>
+<tbody id="rows"></tbody>
+</table></div>
+
+<footer>Data: <a href="data/listings.json">listings.json</a> · <a href="data/listings.csv">listings.csv</a>. Gathered from public listings on LandWatch, LandSearch, broker and auction sites. Prices and status change often, so confirm everything with the listing agent before acting.</footer>
+</main>
+<script>
+const $=s=>document.querySelector(s), money=n=>n==null?'—':'$'+Math.round(n).toLocaleString();
+let data=[], sortK='rank', asc=true;
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function render(){
+  const q=$('#q').value.toLowerCase(), st=$('#state').value, ss=$('#status').value, cb=$('#cabin').value;
+  let rows=data.filter(r=>(!st||r.state===st)&&(!ss||r.status===ss)&&(!cb||r.has_structure===cb)&&
+    (!q||[r.property,r.county,r.notes,r.red_flags].join(' ').toLowerCase().includes(q)));
+  rows.sort((a,b)=>{const x=a[sortK],y=b[sortK];const c=(typeof x==='number'&&typeof y==='number')?x-y:String(x).localeCompare(String(y));return asc?c:-c});
+  $('#rows').innerHTML=rows.map(r=>`<tr class="status-${esc(r.status)}">
+    <td class="num">${r.rank}</td><td class="num"><b>${r.score}</b></td>
+    <td><a href="${esc(r.url)}" target="_blank" rel="noopener">${esc(r.property)}</a>${r.status!=='Active'?` <span class="pill">${esc(r.status)}</span>`:''}${r.first_seen===latest?' <span class="pill">new</span>':''}</td>
+    <td>${esc(r.county)}, ${esc(r.state)}</td><td class="num">${r.acres}</td><td class="num">${money(r.price)}</td>
+    <td class="num">${money(r.price_per_acre)}</td><td class="num">${r.drive_min} min</td><td>${r.has_structure==='Yes'?'Yes':''}</td>
+    <td class="notes">${esc(r.notes)}${r.red_flags?`<div class="flag">⚠ ${esc(r.red_flags)}</div>`:''}</td></tr>`).join('');
+}
+let latest='';
+fetch('data/listings.json').then(r=>r.json()).then(d=>{
+  data=d; latest=d.map(r=>r.first_seen).sort().pop();
+  $('#sub').textContent+=` · updated ${latest}`;
+  $('#top5').innerHTML=d.filter(r=>r.status==='Active').sort((a,b)=>a.rank-b.rank).slice(0,5).map(r=>`<div class="card">
+    <div class="score">${r.score}</div><a href="${esc(r.url)}" target="_blank" rel="noopener">${esc(r.property)}</a>
+    <div class="meta">${esc(r.county)}, ${esc(r.state)} · ${money(r.price)} · ${money(r.price_per_acre)}/ac · ~${r.drive_min} min</div></div>`).join('');
+  render();
+});
+document.querySelectorAll('th').forEach(th=>th.onclick=()=>{const k=th.dataset.k;asc=sortK===k?!asc:!['score','acres'].includes(k);sortK=k;render()});
+['#q','#state','#status','#cabin'].forEach(s=>$(s).addEventListener('input',render));
+</script>
+</body>
+</html>
